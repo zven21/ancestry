@@ -26,6 +26,34 @@ defmodule Ancestry do
 
         unquote(repo).all(query)
       end
+
+      def ancestor_ids(record) do
+        record.ancestry
+        |> parse_ancestry_column()
+      end
+
+      def ancestors(record) do
+        case ancestor_ids(record) do
+          nil ->
+            nil
+
+          ancestors ->
+            query =
+              from(u in unquote(module),
+                where: u.id in ^ancestors
+              )
+
+            unquote(repo).all(query)
+        end
+      end
+
+      defp parse_ancestry_column(nil), do: nil
+
+      defp parse_ancestry_column(field) do
+        field
+        |> String.split("/")
+        |> Enum.map(fn x -> String.to_integer(x) end)
+      end
     end
   end
 end
