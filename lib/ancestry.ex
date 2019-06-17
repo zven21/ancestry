@@ -3,16 +3,29 @@ defmodule Ancestry do
   Documentation for Ancestry.
   """
 
-  @doc """
-  Hello world.
+  defmacro __using__(opts) do
+    quote do
+      import unquote(__MODULE__)
+      @ancestry_opts unquote(opts)
+      @before_compile unquote(__MODULE__)
+    end
+  end
 
-  ## Examples
+  defmacro __before_compile__(%{module: module}) do
+    ancestry_opts = Module.get_attribute(module, :ancestry_opts)
+    repo = ancestry_opts[:repo]
 
-      iex> Ancestry.hello()
-      :world
+    quote do
+      import Ecto.Query
 
-  """
-  def hello do
-    :world
+      def roots do
+        query =
+          from(u in unquote(module),
+            where: is_nil(u.ancestry) or u.ancestry == ""
+          )
+
+        unquote(repo).all(query)
+      end
+    end
   end
 end
