@@ -33,9 +33,9 @@ x MyModel.ancestor_ids(record)
 MyModel.path(record)
 MyModel.path_ids(record)
 
-MyModel.children(record)
-MyModel.child_ids(record)
-MyModel.has_children?(record)
+x MyModel.children(record)
+x MyModel.child_ids(record)
+x MyModel.has_children?(record)
 
 MyModel.is_childless?(record)
 

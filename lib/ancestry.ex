@@ -18,6 +18,9 @@ defmodule Ancestry do
     quote do
       import Ecto.Query
 
+      @doc """
+      Gets Root nodes.
+      """
       def roots do
         query =
           from(u in unquote(module),
@@ -27,11 +30,17 @@ defmodule Ancestry do
         unquote(repo).all(query)
       end
 
+      @doc """
+      Gets ancestor ids of the record
+      """
       def ancestor_ids(record) do
         record.ancestry
         |> parse_ancestry_column()
       end
 
+      @doc """
+      Retutns ancestors of the record, starting with the root and ending with the parent
+      """
       def ancestors(record) do
         case ancestor_ids(record) do
           nil ->
@@ -45,6 +54,59 @@ defmodule Ancestry do
 
             unquote(repo).all(query)
         end
+      end
+
+      @doc """
+      Returns true if the record is a root node, false otherwise
+      """
+      def is_root?(record) do
+        case record.ancestry do
+          "" -> true
+          nil -> true
+          _ -> false
+        end
+      end
+
+      @doc """
+      Direct children of the record
+      """
+      def children(record) do
+        record
+        |> children_query()
+        |> unquote(repo).all()
+      end
+
+      @doc """
+      Direct children's ids
+      """
+      def child_ids(record) do
+        record
+        |> children()
+        |> Enum.map(fn child -> Map.get(child, :id) end)
+      end
+
+      @doc """
+      Returns true if the record has any children, false otherwise
+      """
+      def has_children?(record) do
+        record
+        |> children()
+        |> length
+        |> Kernel.>(0)
+      end
+
+      defp child_ancestry(record) do
+        case is_root?(record) do
+          true -> "#{record.id}"
+          false -> "#{record.ancestry}/#{record.id}"
+        end
+      end
+
+      defp children_query(record) do
+        query =
+          from(u in unquote(module),
+            where: u.ancestry == ^child_ancestry(record)
+          )
       end
 
       defp parse_ancestry_column(nil), do: nil
