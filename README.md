@@ -27,8 +27,8 @@ MyModel.root(record)
 MyModel.root_id(record)
 MyModel.is_root?(record)
 
-MyModel.ancestors(record)
-MyModel.ancestor_ids(record)
+x MyModel.ancestors(record)
+x MyModel.ancestor_ids(record)
 
 MyModel.path(record)
 MyModel.path_ids(record)
