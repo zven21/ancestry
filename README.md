@@ -18,14 +18,14 @@ end
 ## TODO
 
 ```
-MyModel.parent(record)
-MyModel.parent_id(record)
-MyModel.has_parent?(record)
+x MyModel.parent(record)
+x MyModel.parent_id(record)
+x MyModel.has_parent?(record)
 
 x MyModel.roots?
 MyModel.root(record)
 MyModel.root_id(record)
-MyModel.is_root?(record)
+x MyModel.is_root?(record)
 
 x MyModel.ancestors(record)
 x MyModel.ancestor_ids(record)
