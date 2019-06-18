@@ -35,10 +35,10 @@ Add ancestry field and index to migration file.
 
 ```elixir
 def change do
-  alter table(:models) do
+  alter table(:my_models) do
     add :ancestry, :string
   end
-  create index(:models, [:ancestry])
+  create index(:my_models, [:ancestry])
 end
 ```
 
@@ -49,13 +49,13 @@ mix ecto.migration
 Add `use Ancestry, repo: MyApp.repo` to you model.ex
 
 ```elixir
-defmodule Model do
+defmodule MyModel do
   use Ecto.Schema
   use Ancestry, repo: MyApp.repo
 
   import Ecto.Changeset
 
-  schema "models" do
+  schema "my_models" do
     field :ancestry, :string
   end
 
