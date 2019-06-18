@@ -5,10 +5,10 @@ defmodule AncestryTest do
 
   alias Dummy.Category
 
-  test "roots" do
-    root = insert(:category)
-    assert Category.roots() == [root]
-  end
+  # test "roots" do
+  #   root = insert(:category)
+  #   assert Category.roots() == [root]
+  # end
 
   describe "ancestor" do
     test "ancestor_ids" do
@@ -72,6 +72,32 @@ defmodule AncestryTest do
       root = insert(:category, name: "root")
       c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
       assert Category.parent(c1) == root
+    end
+  end
+
+  describe "root" do
+    test "root" do
+      root = insert(:category)
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+
+      assert Category.root(c1a) == root
+    end
+
+    test "root_id" do
+      root = insert(:category)
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+
+      assert Category.root_id(c1a) == root.id
+    end
+
+    test "is_root?" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+
+      assert Category.is_root?(root) == true
+      assert Category.is_root?(c1) == false
     end
   end
 end
