@@ -201,6 +201,14 @@ defmodule Ancestry do
         |> Kernel.>(0)
       end
 
+      @doc """
+      Returns true if the record is the only child of its parent.
+      """
+      @spec is_only_child?(Ecto.Schema.t()) :: true | false
+      def is_only_child?(record) do
+        siblings(record) == [record]
+      end
+
       defp do_siblings_query(record) do
         query =
           from(u in unquote(module),
