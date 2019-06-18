@@ -137,5 +137,16 @@ defmodule AncestryTest do
       assert Category.has_siblings?(c1) == true
       assert Category.has_siblings?(root) == false
     end
+
+    test "is_only_child?" do
+      root1 = insert(:category, name: "root")
+      root2 = insert(:category, name: "root2")
+      insert(:category, name: "c3", ancestry: "#{root2.id}")
+      c1 = insert(:category, name: "c1", ancestry: "#{root1.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root2.id}")
+
+      assert Category.is_only_child?(c1) == true
+      assert Category.is_only_child?(c2) == false
+    end
   end
 end
