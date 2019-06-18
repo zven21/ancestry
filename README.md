@@ -6,6 +6,8 @@
 
 * [Getting started](#getting-started)
 * [TODO](#todo)
+* [Options](#option-for-use-ancestry)
+* [Examples](#examples)
 * [Contributing](#contributing)
 * [Make a pull request](#make-a-pull-request)
 * [License](#license)
@@ -96,6 +98,24 @@ end
 |`subtree`          |the model on descendants and itself| `MyModel.subtree(record)` | `false` |
 |`subtree_ids`      |a list of all ids in the record's subtree| `MyModel.subtree_ids(record)`| `false` |
 |`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| `false` |
+
+## Options for `use Ancestry`
+
+The has_ancestry method supports the following options:
+
+    :repo                  The current app repo
+    :ancestry_column       Pass in a symbol to store ancestry in a different column
+    :changeset_ref         Changeset Reference if use create method.
+    :orphan_strategy       Instruct Ancestry what to do with children of a node that is destroyed:
+                           :destroy   All children are destroyed as well (default)
+                           :rootify   The children of the destroyed node become root nodes
+                           :restrict  An AncestryException is raised if any children exist
+                           :adopt     The orphan subtree is added to the parent of the deleted node.
+                                      If the deleted node is Root, then rootify the orphan subtree.
+
+
+## Examples
+
 
 ## Contributing
 
