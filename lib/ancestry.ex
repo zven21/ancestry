@@ -68,6 +68,29 @@ defmodule Ancestry do
       end
 
       @doc """
+      Gets root of the record's tree, self for a root node
+      """
+      def root(record) do
+        unquote(repo).get!(unquote(module), root_id(record))
+      end
+
+      @doc """
+      Gets root id of the record's tree, self for a root node
+      """
+      def root_id(record) do
+        case is_root?(record) do
+          true ->
+            record.id
+
+          false ->
+            record.ancestry
+            |> String.split("/")
+            |> hd
+            |> String.to_integer()
+        end
+      end
+
+      @doc """
       Direct children of the record
       """
       def children(record) do
