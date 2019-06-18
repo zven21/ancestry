@@ -100,4 +100,33 @@ defmodule AncestryTest do
       assert Category.is_root?(c1) == false
     end
   end
+
+  describe "siblings" do
+    test "siblings" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+
+      assert Category.siblings(c1) == [c1, c2]
+      assert Category.siblings(root) == []
+    end
+
+    test "sibling_ids" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+
+      assert Category.sibling_ids(c1) == [c1.id, c2.id]
+      assert Category.sibling_ids(root) == []
+    end
+
+    test "has_siblings?" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      insert(:category, name: "c2", ancestry: "#{root.id}")
+
+      assert Category.has_siblings?(c1) == true
+      assert Category.has_siblings?(root) == false
+    end
+  end
 end
