@@ -86,7 +86,7 @@ end
 |`siblings`         |siblings of the record, the record itself is included*| `MyModel.siblings(record)` | `true` |
 |`sibling_ids`      |sibling ids| `MyModel.sibling_ids(record)` | `true` |
 |`has_siblings?`    |true if the record's parent has more than one child| `MyModel.has_siblings?(record)` | `true` |
-|`is_only_child?`   |true if the record is the only child of its parent| `MyModel.is_only_child?(record)`| `false`|
+|`is_only_child?`   |true if the record is the only child of its parent| `MyModel.is_only_child?(record)`| `true`|
 |`path`             |path of the record, starting with the root and ending with self| `MyModel.path(record)` | `false`|
 |`path_ids`         |a list the path ids, starting with the root id and ending with the node's own id| `MyModel.path_ids(record)`| `false` |
 |`descendants`      |direct and indirect children of the record| `MyModel.descendants(record)`| `false` |
