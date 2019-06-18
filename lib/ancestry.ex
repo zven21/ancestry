@@ -95,6 +95,39 @@ defmodule Ancestry do
         |> Kernel.>(0)
       end
 
+      @doc """
+      Gets parent of the record, nil for a root node
+      """
+      def parent(record) do
+        case parent_id(record) do
+          nil -> nil
+          id -> unquote(repo).get!(unquote(module), id)
+        end
+      end
+
+      @doc """
+      Gets parent id of the record, nil for a root node
+      """
+      def parent_id(record) do
+        case ancestor_ids(record) do
+          nil ->
+            nil
+
+          ancestors ->
+            ancestors |> List.last()
+        end
+      end
+
+      @doc """
+      Returns true if the record has a parent, false otherwise
+      """
+      def has_parent?(record) do
+        case parent_id(record) do
+          nil -> false
+          _ -> true
+        end
+      end
+
       defp child_ancestry(record) do
         case is_root?(record) do
           true -> "#{record.id}"
