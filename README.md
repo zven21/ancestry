@@ -44,4 +44,4 @@ end
 |`indirect_ids`     |indirect children's ids of the record| | |
 |`subtree`          |the model on descendants and itself| `MyModel.subtree(record)` | `false`|
 |`subtree_ids`      |a list of all ids in the record's subtree| `MyModel.subtree_ids(record)`|`false` |
-|`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| [ ] |
+|`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| `false` |
