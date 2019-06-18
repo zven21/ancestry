@@ -27,13 +27,13 @@ end
 
 Gen migration file to add string field in your model.
 
-```
+```shell
 mix ecto.gen.migration add_ancestry_to_<model>
 ```
 
 Add ancestry field and index to migration file.
 
-```
+```elixir
 def change do
   alter table(:models) do
     add :ancestry, :string
@@ -42,13 +42,13 @@ def change do
 end
 ```
 
-```
+```shell
 mix ecto.migration
 ```
 
 Add `use Ancestry, repo: MyApp.repo` to you model.ex
 
-```
+```elixir
 defmodule Model do
   use Ecto.Schema
   use Ancestry, repo: MyApp.repo
