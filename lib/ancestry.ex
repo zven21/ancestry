@@ -127,6 +127,14 @@ defmodule Ancestry do
       end
 
       @doc """
+      Returns true is the record has no children, false otherwise
+      """
+      @spec is_childless?(Ecto.Schema.t()) :: true | false
+      def is_childless?(record) do
+        not has_children?(record)
+      end
+
+      @doc """
       Gets parent of the record, nil for a root node
       """
       @spec parent(Ecto.Schema.t()) :: nil | Ecto.Schema.t()
