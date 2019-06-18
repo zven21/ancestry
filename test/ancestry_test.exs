@@ -53,6 +53,15 @@ defmodule AncestryTest do
 
       assert Category.has_children?(root) == true
     end
+
+    test "is_childless?" do
+      root = insert(:category, name: "root")
+      root2 = insert(:category, name: "root2")
+      insert(:category, name: "c1", ancestry: "#{root2.id}")
+
+      assert Category.is_childless?(root) == true
+      assert Category.is_childless?(root2) == false
+    end
   end
 
   describe "parent" do
