@@ -35,6 +35,8 @@ defmodule AncestryTest do
       root = insert(:category, name: "root")
       c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
       c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
 
       assert Category.children(root) == [c1, c2]
     end
@@ -43,6 +45,8 @@ defmodule AncestryTest do
       root = insert(:category, name: "root")
       c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
       c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
 
       assert Category.child_ids(root) == [c1.id, c2.id]
     end
@@ -150,8 +154,30 @@ defmodule AncestryTest do
     end
   end
 
+  describe "descendants" do
+    test "descendants" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      c2a = insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
+
+      assert Category.descendants(root) == [c1, c2, c1a, c2a]
+    end
+
+    test "descendant_ids" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      c2a = insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
+
+      assert Category.descendant_ids(root) == [c1.id, c2.id, c1a.id, c2a.id]
+    end
+  end
+
   test "use Ancestry options ancestry_column" do
-    # Bad test style. FIXME
+    # Bad style. FIXME
     root1 = insert(:category_other, name: "root")
     c1 = insert(:category_other, name: "c1", ancestry_other: "#{root1.id}")
 
