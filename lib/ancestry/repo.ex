@@ -22,7 +22,8 @@ defmodule Ancestry.Repo do
     end
   end
 
-  def gen_ancestry_value(record, "siblings", opts, _), do: record |> Map.get(opts[:ancestry_column])
+  def gen_ancestry_value(record, "siblings", opts, _),
+    do: record |> Map.get(opts[:ancestry_column])
 
   def delete(record, opts, module) do
     repo = opts[:repo]
