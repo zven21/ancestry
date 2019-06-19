@@ -24,6 +24,8 @@ defmodule Ancestry do
     quote do
       import Ecto.Query
 
+      alias Ecto.Multi
+
       @doc """
       Gets Root nodes.
       """
@@ -219,6 +221,44 @@ defmodule Ancestry do
       def is_only_child?(record) do
         siblings(record) == [record]
       end
+
+      @doc """
+      Delete ancestry
+
+      ## orphan_strategy
+
+        * :destroy   All children are destroyed as well (default).
+        * :rootify   The children of the destroyed node become root nodes.
+        * :restrict  An AncestryException is raised if any children exist.
+        * :adopt     The orphan subtree is added to the parent of the deleted node.
+
+      """
+      # @spec delete(Ecto.Schema.t()) ::
+      def delete(record) do
+        multi =
+          Multi.new()
+          |> Multi.delete(:model, record)
+          |> Multi.run(:orphan_strategy, __MODULE__, :handle_orphan_strategy, [])
+
+        unquote(opts[:repo]).transaction(multi)
+      end
+
+      defp handle_orphan_strategy(%{model: record}),
+        do: do_apply_orphan_strategy(record, opts[:orphan_strategy])
+
+      defp do_handle_orphan_strategy(record, :destroy) do
+      end
+
+      defp do_handle_orphan_strategy(record, :rootify) do
+      end
+
+      defp do_handle_orphan_strategy(record, :restrict) do
+      end
+
+      defp do_handle_orphan_strategy(record, :adopt) do
+      end
+
+      defp do_apply_orphan_strategy(record, _), do: nil
 
       defp do_siblings_query(record) do
         query =
