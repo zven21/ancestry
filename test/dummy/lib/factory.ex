@@ -6,4 +6,10 @@ defmodule Dummy.Factory do
       name: sequence(:name, &"name_#{&1}")
     }
   end
+
+  def category_other_factory do
+    %Dummy.CategoryColumn{
+      name: sequence(:name, &"name_#{&1}")
+    }
+  end
 end

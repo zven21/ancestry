@@ -3,7 +3,7 @@ defmodule AncestryTest do
 
   import Dummy.Factory
 
-  alias Dummy.Category
+  alias Dummy.{Category, CategoryColumn}
 
   # test "roots" do
   #   root = insert(:category)
@@ -148,5 +148,13 @@ defmodule AncestryTest do
       assert Category.is_only_child?(c1) == true
       assert Category.is_only_child?(c2) == false
     end
+  end
+
+  test "use Ancestry options ancestry_column" do
+    # Bad test style. FIXME
+    root1 = insert(:category_other, name: "root")
+    c1 = insert(:category_other, name: "c1", ancestry_other: "#{root1.id}")
+
+    assert CategoryColumn.is_only_child?(c1) == true
   end
 end
