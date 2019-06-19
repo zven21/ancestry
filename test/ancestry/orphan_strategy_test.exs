@@ -141,9 +141,11 @@ defmodule Ancestry.OrphanStrategyTest do
       c1 = Factory.insert(:category_with_restrict, name: "c1", ancestry: "#{root.id}")
       Factory.insert(:category_with_restrict, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
 
-      assert_raise Ancestry.RestrictError, "Cannot delete record because it has descendants.", fn ->
-        CategoryWithRestrict.delete(root)
-      end
+      assert_raise Ancestry.RestrictError,
+                   "Cannot delete record because it has descendants.",
+                   fn ->
+                     CategoryWithRestrict.delete(root)
+                   end
     end
 
     test ":adopt" do
@@ -159,6 +161,7 @@ defmodule Ancestry.OrphanStrategyTest do
 
     test "with bad_value" do
       root = Factory.insert(:category_with_bad_value, name: "root")
+
       assert_raise RuntimeError, "orphan_strategy value bad_value not exist.", fn ->
         CategoryWithBadValue.delete(root)
       end
