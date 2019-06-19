@@ -7,6 +7,10 @@ defmodule Ancestry do
     defexception message: "Cannot delete record because it has descendants."
   end
 
+  defmodule NoExistOrphanStrategy do
+    defexception message: "orphan_strategy value not exists."
+  end
+
   defmacro __using__(opts) do
     quote do
       import unquote(__MODULE__)
@@ -308,16 +312,23 @@ defmodule Ancestry do
 
       """
       def delete(record) do
-        multi =
-          Multi.new()
-          |> Multi.delete(:model, record)
-          |> Multi.run(:orphan_strategy, __MODULE__, :handle_orphan_strategy, [])
-
-        unquote(opts[:repo]).transaction(multi)
+        repo = unquote(opts[:repo])
+        # multi =
+        #   Multi.new()
+        #   |> Multi.delete(:model, record)
+        #   |> Multi.run(:orphan_strategy, fn repo, %{model: model} ->
+        #     handle_orphan_strategy(record)
+        #   end)
+        # unquote(opts[:repo]).transaction(multi)
+        repo.transaction(fn ->
+          model = repo.delete!(record)
+          handle_orphan_strategy(record)
+          model
+        end)
       end
 
-      defp handle_orphan_strategy(%{model: record}),
-        do: do_apply_orphan_strategy(record, unquote(opts[:orphan_strategy]))
+      defp handle_orphan_strategy(record),
+        do: do_handle_orphan_strategy(record, unquote(opts[:orphan_strategy]))
 
       # destroy
       defp do_handle_orphan_strategy(record, :destroy) do
@@ -344,7 +355,7 @@ defmodule Ancestry do
 
           x
           |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
-          |> unquote(opts[:repo]).update()
+          |> unquote(opts[:repo]).update!()
         end)
       end
 
@@ -371,11 +382,12 @@ defmodule Ancestry do
 
           descendant
           |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
-          |> unquote(opts[:repo]).update()
+          |> unquote(opts[:repo]).update!()
         end)
       end
 
-      defp do_apply_orphan_strategy(record, _), do: nil
+      defp do_handle_orphan_strategy(record, _),
+        do: raise("orphan_strategy value #{unquote(opts[:orphan_strategy])} not exist.")
 
       defp do_descendants_query(record) do
         query_string =

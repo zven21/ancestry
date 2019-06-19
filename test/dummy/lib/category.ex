@@ -9,7 +9,6 @@ defmodule Dummy.Category do
   schema "categories" do
     field(:name, :string)
     field(:ancestry, :string)
-    field(:ancestry_other, :string)
 
     timestamps()
   end

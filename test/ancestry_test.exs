@@ -3,7 +3,7 @@ defmodule AncestryTest do
 
   import Dummy.Factory
 
-  alias Dummy.{Category, CategoryColumn}
+  alias Dummy.{Category}
 
   # test "roots" do
   #   root = insert(:category)
@@ -228,28 +228,5 @@ defmodule AncestryTest do
     assert Category.depth(root) == 0
     assert Category.depth(c1) == 1
     assert Category.depth(c1a) == 2
-  end
-
-  test "use Ancestry options ancestry_column" do
-    # Bad style. FIXME
-    root1 = insert(:category_other, name: "root")
-    c1 = insert(:category_other, name: "c1", ancestry_other: "#{root1.id}")
-
-    assert CategoryColumn.is_only_child?(c1) == true
-  end
-
-  describe "use Ancestry options orphan_strategy" do
-    # How to test use with diff options, FIXME
-    test ":destory" do
-    end
-
-    test ":rootify" do
-    end
-
-    test ":restrict" do
-    end
-
-    test ":adopt" do
-    end
   end
 end
