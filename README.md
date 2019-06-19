@@ -1,12 +1,12 @@
 # Ancestry
 
-**Tree structure**
+**The tree structure implementations for Ecto.**
 
 ## Table of contents
 
 * [Getting started](#getting-started)
 * [TODO](#todo)
-* [Options](#option-for-use-ancestry)
+* [Options for use Ancestry](#options-for-use-ancestry)
 * [Examples](#examples)
 * [Contributing](#contributing)
 * [Make a pull request](#make-a-pull-request)
@@ -101,11 +101,10 @@ end
 
 ## Options for `use Ancestry`
 
-The has_ancestry method supports the following options:
+The `use Ancestry` method supports the following options:
 
     :repo                  The current app repo
     :ancestry_column       Pass in a symbol to store ancestry in a different column
-    :changeset_ref         Changeset Reference if use create method.
     :orphan_strategy       Instruct Ancestry what to do with children of a node that is destroyed:
                            :destroy   All children are destroyed as well (default)
                            :rootify   The children of the destroyed node become root nodes

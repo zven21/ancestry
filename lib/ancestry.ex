@@ -13,7 +13,13 @@ defmodule Ancestry do
 
   defmacro __before_compile__(%{module: module}) do
     ancestry_opts = Module.get_attribute(module, :ancestry_opts)
-    repo = ancestry_opts[:repo]
+
+    default_opts = [
+      ancestry_column: :ancestry,
+      orphan_strategy: :destroy
+    ]
+
+    opts = Keyword.merge(default_opts, ancestry_opts)
 
     quote do
       import Ecto.Query
@@ -24,11 +30,15 @@ defmodule Ancestry do
       @spec roots() :: Enum.t()
       def roots do
         query =
-          from(u in unquote(module),
-            where: is_nil(u.ancestry) or u.ancestry == ""
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} IS NULL OR #{opts[:ancestry_column]} = ''")
+              )
           )
 
-        unquote(repo).all(query)
+        unquote(opts[:repo]).all(query)
       end
 
       @doc """
@@ -36,7 +46,7 @@ defmodule Ancestry do
       """
       @spec ancestor_ids(Ecto.Schema.t()) :: Enum.t()
       def ancestor_ids(record) do
-        record.ancestry
+        record.unquote(opts[:ancestry_column])
         |> parse_ancestry_column()
       end
 
@@ -51,11 +61,12 @@ defmodule Ancestry do
 
           ancestors ->
             query =
-              from(u in unquote(module),
+              from(
+                u in unquote(module),
                 where: u.id in ^ancestors
               )
 
-            unquote(repo).all(query)
+            unquote(opts[:repo]).all(query)
         end
       end
 
@@ -64,7 +75,7 @@ defmodule Ancestry do
       """
       @spec is_root?(Ecto.Schema.t()) :: true | false
       def is_root?(record) do
-        case record.ancestry do
+        case record.unquote(opts[:ancestry_column]) do
           "" -> true
           nil -> true
           _ -> false
@@ -76,7 +87,7 @@ defmodule Ancestry do
       """
       @spec root(Ecto.Schema.t()) :: Ecto.Schema.t()
       def root(record) do
-        unquote(repo).get!(unquote(module), root_id(record))
+        unquote(opts[:repo]).get!(unquote(module), root_id(record))
       end
 
       @doc """
@@ -89,7 +100,7 @@ defmodule Ancestry do
             record.id
 
           false ->
-            record.ancestry
+            record.unquote(opts[:ancestry_column])
             |> parse_ancestry_column()
             |> hd()
         end
@@ -102,7 +113,7 @@ defmodule Ancestry do
       def children(record) do
         record
         |> do_children_query()
-        |> unquote(repo).all()
+        |> unquote(opts[:repo]).all()
       end
 
       @doc """
@@ -141,7 +152,7 @@ defmodule Ancestry do
       def parent(record) do
         case parent_id(record) do
           nil -> nil
-          id -> unquote(repo).get!(unquote(module), id)
+          id -> unquote(opts[:repo]).get!(unquote(module), id)
         end
       end
 
@@ -177,7 +188,7 @@ defmodule Ancestry do
       def siblings(record) do
         record
         |> do_siblings_query()
-        |> unquote(repo).all()
+        |> unquote(opts[:repo]).all()
       end
 
       @doc """
@@ -211,22 +222,32 @@ defmodule Ancestry do
 
       defp do_siblings_query(record) do
         query =
-          from(u in unquote(module),
-            where: u.ancestry == ^"#{record.ancestry}"
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} = ?"),
+                ^record.unquote(opts[:ancestry_column])
+              )
           )
       end
 
       defp do_children_query(record) do
         query =
-          from(u in unquote(module),
-            where: u.ancestry == ^child_ancestry(record)
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} = ?"),
+                ^child_ancestry(record)
+              )
           )
       end
 
       defp child_ancestry(record) do
         case is_root?(record) do
           true -> "#{record.id}"
-          false -> "#{record.ancestry}/#{record.id}"
+          false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
         end
       end
 
