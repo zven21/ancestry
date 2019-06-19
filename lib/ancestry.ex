@@ -27,6 +27,9 @@ defmodule Ancestry do
       defdelegate delete(record, opts \\ unquote(opts), module \\ unquote(module)),
         to: Ancestry.Repo
 
+      defdelegate arrange(record, opts \\ unquote(opts), module \\ unquote(module)),
+        to: Ancestry.Repo
+
       defdelegate get_ancestry_value(
                     record,
                     relation \\ "children",
