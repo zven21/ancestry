@@ -3,6 +3,10 @@ defmodule Ancestry do
   Documentation for Ancestry.
   """
 
+  defmodule RestrictError do
+    defexception message: "Cannot delete record because it has descendants."
+  end
+
   defmacro __using__(opts) do
     quote do
       import unquote(__MODULE__)
@@ -24,7 +28,7 @@ defmodule Ancestry do
     quote do
       import Ecto.Query
 
-      alias Ecto.Multi
+      alias Ecto.{Multi, Changeset}
 
       @doc """
       Gets Root nodes.
@@ -315,16 +319,60 @@ defmodule Ancestry do
       defp handle_orphan_strategy(%{model: record}),
         do: do_apply_orphan_strategy(record, unquote(opts[:orphan_strategy]))
 
+      # destroy
       defp do_handle_orphan_strategy(record, :destroy) do
+        record
+        |> do_descendants_query()
+        |> unquote(opts[:repo]).delete_all()
       end
 
+      # rootify
       defp do_handle_orphan_strategy(record, :rootify) do
+        child_ancestry = child_ancestry(record)
+
+        descendants(record)
+        |> Enum.each(fn x ->
+          new_ancestry =
+            case x.unquote(opts[:ancestry_column]) do
+              ^child_ancestry ->
+                nil
+
+              _ ->
+                x.unquote(opts[:ancestry_column])
+                |> String.replace(~r/^#{child_ancestry}\//, "")
+            end
+
+          x
+          |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
+          |> unquote(opts[:repo]).update()
+        end)
       end
 
+      # restrict
       defp do_handle_orphan_strategy(record, :restrict) do
+        if has_children?(record), do: raise(Ancestry.RestrictError)
       end
 
+      # adopt
       defp do_handle_orphan_strategy(record, :adopt) do
+        record
+        |> descendants()
+        |> Enum.each(fn descendant ->
+          new_ancestry =
+            ancestor_ids(descendant)
+            |> Enum.reject(fn x -> x == record.id end)
+            |> Enum.join("/")
+
+          new_ancestry =
+            case new_ancestry do
+              "" -> nil
+              _ -> new_ancestry
+            end
+
+          descendant
+          |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
+          |> unquote(opts[:repo]).update()
+        end)
       end
 
       defp do_apply_orphan_strategy(record, _), do: nil

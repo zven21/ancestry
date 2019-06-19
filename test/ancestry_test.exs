@@ -237,4 +237,19 @@ defmodule AncestryTest do
 
     assert CategoryColumn.is_only_child?(c1) == true
   end
+
+  describe "use Ancestry options orphan_strategy" do
+    # How to test use with diff options, FIXME
+    test ":destory" do
+    end
+
+    test ":rootify" do
+    end
+
+    test ":restrict" do
+    end
+
+    test ":adopt" do
+    end
+  end
 end
