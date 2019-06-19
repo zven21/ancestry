@@ -93,9 +93,9 @@ end
 |`descendant_ids`   |direct and indirect children's ids of the record| `MyModel.descendant_ids(record)` | `true` |
 |`subtree`          |the model on descendants and itself| `MyModel.subtree(record)` | `true` |
 |`subtree_ids`      |a list of all ids in the record's subtree| `MyModel.subtree_ids(record)`| `true` |
-|`path`             |path of the record, starting with the root and ending with self| `MyModel.path(record)` | `false`|
-|`path_ids`         |a list the path ids, starting with the root id and ending with the node's own id| `MyModel.path_ids(record)`| `false` |
-|`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| `false` |
+|`path`             |path of the record, starting with the root and ending with self| `MyModel.path(record)` | `true`|
+|`path_ids`         |a list the path ids, starting with the root id and ending with the node's own id| `MyModel.path_ids(record)`| `true` |
+|`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| `true` |
 
 ## Options for `use Ancestry`
 
