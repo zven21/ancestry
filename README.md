@@ -7,6 +7,7 @@
 * [Getting started](#getting-started)
 * [TODO](#todo)
 * [Options for use Ancestry](#options-for-use-ancestry)
+* [Arrangement](#arrangement)
 * [Examples](#examples)
 * [Contributing](#contributing)
 * [Make a pull request](#make-a-pull-request)
@@ -111,8 +112,43 @@ The `use Ancestry` method supports the following options:
                                       If the deleted node is Root, then rootify the orphan subtree.
 
 
+## Arrangement
+
+Ancestry can arrange an entire subtree into nested hashes for easy navigation after retrieval from the database.
+
+```elixir
+MyModel.arrange(record) =>
+%{
+  id: 1,
+  name: "root",
+  ancestry: nil,
+  children: [
+    %{
+      id: "2",
+      name: "childA",
+      ancestry: "1",
+      children: [
+        %{
+          id: 3,
+          name: "childA1",
+          ancestry: "1/2",
+          children: []
+        }
+      ]
+    }
+  ],
+}
+```
+
 ## Examples
 
+```elixir
+# use `MyModel.delete` deal with orphan strategy.
+iex> MyModel.delete(record)
+
+# use `MyModel.get_ancestry_value(record, "children|siblings")` gen `ancestry` value
+iex> MyModel.get_ancestry_value(record, "children")
+```
 
 ## Contributing
 

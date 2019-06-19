@@ -1,5 +1,7 @@
 defmodule Ancestry.OrphanStrategyTest do
-  @moduledoc false
+  @moduledoc """
+  Test for `use Ancestry`, orphan_strategy: :value
+  """
 
   use ExUnit.Case
   alias Dummy.Repo

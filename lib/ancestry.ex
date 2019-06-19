@@ -3,14 +3,6 @@ defmodule Ancestry do
   Documentation for Ancestry.
   """
 
-  defmodule RestrictError do
-    defexception message: "Cannot delete record because it has descendants."
-  end
-
-  defmodule NoExistOrphanStrategy do
-    defexception message: "orphan_strategy value not exists."
-  end
-
   defmacro __using__(opts) do
     quote do
       import unquote(__MODULE__)
@@ -32,7 +24,16 @@ defmodule Ancestry do
     quote do
       import Ecto.Query
 
-      alias Ecto.{Multi, Changeset}
+      defdelegate delete(record, opts \\ unquote(opts), module \\ unquote(module)),
+        to: Ancestry.Repo
+
+      defdelegate get_ancestry_value(
+                    record,
+                    relation \\ "children",
+                    opts \\ unquote(opts),
+                    module \\ unquote(module)
+                  ),
+                  to: Ancestry.Repo
 
       @doc """
       Gets Root nodes.
@@ -236,7 +237,7 @@ defmodule Ancestry do
       @spec descendants(Ecto.Schema.t()) :: Enum.t()
       def descendants(record) do
         record
-        |> do_descendants_query()
+        |> descendants_query()
         |> unquote(opts[:repo]).all()
       end
 
@@ -248,6 +249,25 @@ defmodule Ancestry do
         record
         |> descendants()
         |> Enum.map(fn x -> Map.get(x, :id) end)
+      end
+
+      @doc false
+      def descendants_query(record) do
+        query_string =
+          case is_root?(record) do
+            true -> "#{record.id}"
+            false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
+          end
+
+        query =
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} LIKE ?"),
+                ^"#{query_string}%"
+              )
+          )
       end
 
       @doc """
@@ -300,111 +320,12 @@ defmodule Ancestry do
         |> Enum.map(fn x -> Map.get(x, :id) end)
       end
 
-      @doc """
-      Delete ancestry
-
-      ## orphan_strategy
-
-        * :destroy   All children are destroyed as well (default).
-        * :rootify   The children of the destroyed node become root nodes.
-        * :restrict  An AncestryException is raised if any children exist.
-        * :adopt     The orphan subtree is added to the parent of the deleted node.
-
-      """
-      def delete(record) do
-        repo = unquote(opts[:repo])
-        # multi =
-        #   Multi.new()
-        #   |> Multi.delete(:model, record)
-        #   |> Multi.run(:orphan_strategy, fn repo, %{model: model} ->
-        #     handle_orphan_strategy(record)
-        #   end)
-        # unquote(opts[:repo]).transaction(multi)
-        repo.transaction(fn ->
-          model = repo.delete!(record)
-          handle_orphan_strategy(record)
-          model
-        end)
-      end
-
-      defp handle_orphan_strategy(record),
-        do: do_handle_orphan_strategy(record, unquote(opts[:orphan_strategy]))
-
-      # destroy
-      defp do_handle_orphan_strategy(record, :destroy) do
-        record
-        |> do_descendants_query()
-        |> unquote(opts[:repo]).delete_all()
-      end
-
-      # rootify
-      defp do_handle_orphan_strategy(record, :rootify) do
-        child_ancestry = child_ancestry(record)
-
-        descendants(record)
-        |> Enum.each(fn x ->
-          new_ancestry =
-            case x.unquote(opts[:ancestry_column]) do
-              ^child_ancestry ->
-                nil
-
-              _ ->
-                x.unquote(opts[:ancestry_column])
-                |> String.replace(~r/^#{child_ancestry}\//, "")
-            end
-
-          x
-          |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
-          |> unquote(opts[:repo]).update!()
-        end)
-      end
-
-      # restrict
-      defp do_handle_orphan_strategy(record, :restrict) do
-        if has_children?(record), do: raise(Ancestry.RestrictError)
-      end
-
-      # adopt
-      defp do_handle_orphan_strategy(record, :adopt) do
-        record
-        |> descendants()
-        |> Enum.each(fn descendant ->
-          new_ancestry =
-            ancestor_ids(descendant)
-            |> Enum.reject(fn x -> x == record.id end)
-            |> Enum.join("/")
-
-          new_ancestry =
-            case new_ancestry do
-              "" -> nil
-              _ -> new_ancestry
-            end
-
-          descendant
-          |> Changeset.change(%{unquote(opts[:ancestry_column]) => new_ancestry})
-          |> unquote(opts[:repo]).update!()
-        end)
-      end
-
-      defp do_handle_orphan_strategy(record, _),
-        do: raise("orphan_strategy value #{unquote(opts[:orphan_strategy])} not exist.")
-
-      defp do_descendants_query(record) do
-        query_string =
-          case is_root?(record) do
-            true -> "#{record.id}"
-            false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
-          end
-
-        query =
-          from(
-            u in unquote(module),
-            where:
-              fragment(
-                unquote("#{opts[:ancestry_column]} LIKE ?"),
-                ^"#{query_string}%"
-              )
-          )
+      @doc false
+      def child_ancestry(record) do
+        case is_root?(record) do
+          true -> "#{record.id}"
+          false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
+        end
       end
 
       defp do_siblings_query(record) do
@@ -429,13 +350,6 @@ defmodule Ancestry do
                 ^child_ancestry(record)
               )
           )
-      end
-
-      defp child_ancestry(record) do
-        case is_root?(record) do
-          true -> "#{record.id}"
-          false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
-        end
       end
 
       defp parse_ancestry_column(nil), do: nil

@@ -1,5 +1,7 @@
 defmodule Ancestry.AncestryColumnTest do
-  @moduledoc false
+  @moduledoc """
+  Test for `use Ancestry`, ancestry_column: :field
+  """
 
   use ExUnit.Case
 
