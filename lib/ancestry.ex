@@ -27,6 +27,9 @@ defmodule Ancestry do
       defdelegate delete(record, opts \\ unquote(opts), module \\ unquote(module)),
         to: Ancestry.Repo
 
+      defdelegate gen_ancestry_value(record, relation \\ "children", opts \\ unquote(opts), module \\ unquote(module)),
+        to: Ancestry.Repo
+
       @doc """
       Gets Root nodes.
       """

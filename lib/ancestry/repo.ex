@@ -15,6 +15,15 @@ defmodule Ancestry.Repo do
 
   alias Ecto.Changeset
 
+  def gen_ancestry_value(record, "children", opts, module) do
+    case module.is_root?(record) do
+      true -> "#{record.id}"
+      false -> "#{record |> Map.get(opts[:ancestry_column])}/#{record.id}"
+    end
+  end
+
+  def gen_ancestry_value(record, "siblings", opts, _), do: record |> Map.get(opts[:ancestry_column])
+
   def delete(record, opts, module) do
     repo = opts[:repo]
 
