@@ -8,6 +8,7 @@
 * [TODO](#todo)
 * [Options for use Ancestry](#options-for-use-ancestry)
 * [Arrangement](#arrangement)
+* [Examples](#examples)
 * [Contributing](#contributing)
 * [Make a pull request](#make-a-pull-request)
 * [License](#license)
@@ -113,6 +114,8 @@ The `use Ancestry` method supports the following options:
 
 ## Arrangement
 
+Ancestry can arrange an entire subtree into nested hashes for easy navigation after retrieval from the database.
+
 ```elixir
 MyModel.arrange(record) =>
 %{
@@ -137,6 +140,15 @@ MyModel.arrange(record) =>
 }
 ```
 
+## Examples
+
+```elixir
+# use `MyModel.delete` deal with orphan strategy.
+iex> MyModel.delete(record)
+
+# use `MyModel.get_ancestry_value(record, "children|siblings")` gen `ancestry` value
+iex> MyModel.get_ancestry_value(record, "children")
+```
 
 ## Contributing
 
