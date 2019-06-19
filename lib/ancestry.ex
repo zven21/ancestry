@@ -249,6 +249,38 @@ defmodule Ancestry do
       end
 
       @doc """
+      Returns path of the record, starting with the root and ending with self
+      """
+      @spec path(Ecto.Schema.t()) :: Enum.t()
+      def path(record) do
+        case is_root?(record) do
+          true -> [record]
+          false -> ancestors(record) ++ [record]
+        end
+      end
+
+      @doc """
+      a list the path ids, starting with the root id and ending with the node's own id
+      """
+      @spec path_ids(Ecto.Schema.t()) :: Enum.t()
+      def path_ids(record) do
+        case is_root?(record) do
+          true -> [record.id]
+          false -> ancestor_ids(record) ++ [record.id]
+        end
+      end
+
+      @doc """
+      the depth of the node, root nodes are at depth 0
+      """
+      @spec depth(Ecto.Schema.t()) :: integer
+      def depth(record) do
+        path_ids(record)
+        |> length()
+        |> Kernel.-(1)
+      end
+
+      @doc """
       Gets a list of all ids in the record's subtree
       """
       @spec subtree_ids(Ecto.Schema.t()) :: Enum.t()

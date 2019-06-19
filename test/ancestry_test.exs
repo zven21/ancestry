@@ -198,6 +198,38 @@ defmodule AncestryTest do
     end
   end
 
+  describe "path" do
+    test "path" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+
+      assert Category.path(root) == [root]
+      assert Category.path(c1) == [root, c1]
+      assert Category.path(c1a) == [root, c1, c1a]
+    end
+
+    test "path_ids" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+
+      assert Category.path_ids(root) == [root.id]
+      assert Category.path_ids(c1) == [root.id, c1.id]
+      assert Category.path_ids(c1a) == [root.id, c1.id, c1a.id]
+    end
+  end
+
+  test "depth" do
+    root = insert(:category, name: "root")
+    c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+    c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+
+    assert Category.depth(root) == 0
+    assert Category.depth(c1) == 1
+    assert Category.depth(c1a) == 2
+  end
+
   test "use Ancestry options ancestry_column" do
     # Bad style. FIXME
     root1 = insert(:category_other, name: "root")
