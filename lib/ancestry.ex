@@ -223,6 +223,44 @@ defmodule Ancestry do
       end
 
       @doc """
+      Gets direct and indirect children of the record
+      """
+      @spec descendants(Ecto.Schema.t()) :: Enum.t()
+      def descendants(record) do
+        record
+        |> do_descendants_query()
+        |> unquote(opts[:repo]).all()
+      end
+
+      @doc """
+      Gets direct and indirect children's ids of the record
+      """
+      @spec descendant_ids(Ecto.Schema.t()) :: Enum.t()
+      def descendant_ids(record) do
+        record
+        |> descendants()
+        |> Enum.map(fn x -> Map.get(x, :id) end)
+      end
+
+      @doc """
+      Gets the model on descendants and itself.
+      """
+      @spec subtree(Ecto.Schema.t()) :: Enum.t()
+      def subtree(record) do
+        [record | descendants(record)]
+      end
+
+      @doc """
+      Gets a list of all ids in the record's subtree
+      """
+      @spec subtree_ids(Ecto.Schema.t()) :: Enum.t()
+      def subtree_ids(record) do
+        record
+        |> subtree()
+        |> Enum.map(fn x -> Map.get(x, :id) end)
+      end
+
+      @doc """
       Delete ancestry
 
       ## orphan_strategy
@@ -233,7 +271,6 @@ defmodule Ancestry do
         * :adopt     The orphan subtree is added to the parent of the deleted node.
 
       """
-      # @spec delete(Ecto.Schema.t()) ::
       def delete(record) do
         multi =
           Multi.new()
@@ -244,7 +281,7 @@ defmodule Ancestry do
       end
 
       defp handle_orphan_strategy(%{model: record}),
-        do: do_apply_orphan_strategy(record, opts[:orphan_strategy])
+        do: do_apply_orphan_strategy(record, unquote(opts[:orphan_strategy]))
 
       defp do_handle_orphan_strategy(record, :destroy) do
       end
@@ -259,6 +296,24 @@ defmodule Ancestry do
       end
 
       defp do_apply_orphan_strategy(record, _), do: nil
+
+      defp do_descendants_query(record) do
+        query_string =
+          case is_root?(record) do
+            true -> "#{record.id}"
+            false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
+          end
+
+        query =
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} LIKE ?"),
+                ^"#{query_string}%"
+              )
+          )
+      end
 
       defp do_siblings_query(record) do
         query =

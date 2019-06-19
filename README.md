@@ -72,7 +72,7 @@ end
 
 |  method           | return value | usage example | finished? |
 |-------------------|--------------------------|---------------|-----------|
-|`roots`            |return all root node.| `MyModel.roots` | `true` |
+|`roots`            |all root node| `MyModel.roots` | `true` |
 |`parent`           |parent of the record, nil for a root node| `MyModel.parent(record)` | `true` |
 |`parent_id`        |parent id of the record, nil for a root node| `MyModel.parent_id(record)` | `true` |
 |`has_parent?`      |true if the record has a parent, false otherwise| `MyModel.has_parent?(record)` | `true` |
@@ -89,14 +89,12 @@ end
 |`sibling_ids`      |sibling ids| `MyModel.sibling_ids(record)` | `true` |
 |`has_siblings?`    |true if the record's parent has more than one child| `MyModel.has_siblings?(record)` | `true` |
 |`is_only_child?`   |true if the record is the only child of its parent| `MyModel.is_only_child?(record)`| `true`|
+|`descendants`      |direct and indirect children of the record| `MyModel.descendants(record)`| `true` |
+|`descendant_ids`   |direct and indirect children's ids of the record| `MyModel.descendant_ids(record)` | `true` |
+|`subtree`          |the model on descendants and itself| `MyModel.subtree(record)` | `true` |
+|`subtree_ids`      |a list of all ids in the record's subtree| `MyModel.subtree_ids(record)`| `true` |
 |`path`             |path of the record, starting with the root and ending with self| `MyModel.path(record)` | `false`|
 |`path_ids`         |a list the path ids, starting with the root id and ending with the node's own id| `MyModel.path_ids(record)`| `false` |
-|`descendants`      |direct and indirect children of the record| `MyModel.descendants(record)`| `false` |
-|`descendant_ids`   |direct and indirect children's ids of the record| `MyModel.descendant_ids(record)` | `false` |
-|`indirects`        |indirect children of the record| `MyModel.indirects(record)`| `false` |
-|`indirect_ids`     |indirect children's ids of the record| `MyModel.indirect_ids(record)`| `false`|
-|`subtree`          |the model on descendants and itself| `MyModel.subtree(record)` | `false` |
-|`subtree_ids`      |a list of all ids in the record's subtree| `MyModel.subtree_ids(record)`| `false` |
 |`depth`            |the depth of the node, root nodes are at depth 0| `MyModel.depth(record)`| `false` |
 
 ## Options for `use Ancestry`
