@@ -220,6 +220,44 @@ defmodule Ancestry do
         siblings(record) == [record]
       end
 
+      @doc """
+      Gets direct and indirect children of the record
+      """
+      @spec descendants(Ecto.Schema.t()) :: Enum.t()
+      def descendants(record) do
+        record
+        |> do_descendants_query()
+        |> unquote(opts[:repo]).all()
+      end
+
+      @doc """
+      Gets direct and indirect children's ids of the record
+      """
+      @spec descendant_ids(Ecto.Schema.t()) :: Enum.t()
+      def descendant_ids(record) do
+        record
+        |> descendants()
+        |> Enum.map(fn x -> Map.get(x, :id) end)
+      end
+
+      defp do_descendants_query(record) do
+        query_string =
+          case is_root?(record) do
+            true -> "#{record.id}"
+            false -> "#{record.unquote(opts[:ancestry_column])}/#{record.id}"
+          end
+
+        query =
+          from(
+            u in unquote(module),
+            where:
+              fragment(
+                unquote("#{opts[:ancestry_column]} LIKE ?"),
+                ^"#{query_string}%"
+              )
+          )
+      end
+
       defp do_siblings_query(record) do
         query =
           from(
