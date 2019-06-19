@@ -240,6 +240,24 @@ defmodule Ancestry do
         |> Enum.map(fn x -> Map.get(x, :id) end)
       end
 
+      @doc """
+      Gets the model on descendants and itself.
+      """
+      @spec subtree(Ecto.Schema.t()) :: Enum.t()
+      def subtree(record) do
+        [record | descendants(record)]
+      end
+
+      @doc """
+      Gets a list of all ids in the record's subtree
+      """
+      @spec subtree_ids(Ecto.Schema.t()) :: Enum.t()
+      def subtree_ids(record) do
+        record
+        |> subtree()
+        |> Enum.map(fn x -> Map.get(x, :id) end)
+      end
+
       defp do_descendants_query(record) do
         query_string =
           case is_root?(record) do

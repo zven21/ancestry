@@ -176,6 +176,28 @@ defmodule AncestryTest do
     end
   end
 
+  describe "subtree" do
+    test "subtree" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      c2a = insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
+
+      assert Category.subtree(root) == [root, c1, c2, c1a, c2a]
+    end
+
+    test "subtree_ids" do
+      root = insert(:category, name: "root")
+      c1 = insert(:category, name: "c1", ancestry: "#{root.id}")
+      c2 = insert(:category, name: "c2", ancestry: "#{root.id}")
+      c1a = insert(:category, name: "c1a", ancestry: "#{root.id}/#{c1.id}")
+      c2a = insert(:category, name: "c2a", ancestry: "#{root.id}/#{c2.id}")
+
+      assert Category.subtree_ids(root) == [root.id, c1.id, c2.id, c1a.id, c2a.id]
+    end
+  end
+
   test "use Ancestry options ancestry_column" do
     # Bad style. FIXME
     root1 = insert(:category_other, name: "root")
