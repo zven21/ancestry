@@ -5,7 +5,7 @@
 ## Table of contents
 
 * [Getting started](#getting-started)
-* [TODO](#todo)
+* [Navigation](#navigation)
 * [Options for use Ancestry](#options-for-use-ancestry)
 * [Arrangement](#arrangement)
 * [Examples](#examples)
@@ -23,7 +23,7 @@ by adding `ancestry` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ancestry, "~> 0.1.1"}
+    {:ancestry, "~> 0.1.3"}
   ]
 end
 ```
@@ -69,7 +69,7 @@ defmodule MyModel do
 end
 ```
 
-## TODO
+## Navigation
 
 |  method           | return value | usage example | finished? |
 |-------------------|--------------------------|---------------|-----------|
@@ -148,6 +148,9 @@ iex> MyModel.delete(record)
 
 # use `MyModel.get_ancestry_value(record, "children|siblings")` gen `ancestry` value
 iex> MyModel.get_ancestry_value(record, "children")
+
+# use `MyModel.arrange`
+iex> MyModel.get_ancestry_value(record)
 ```
 
 ## Contributing
