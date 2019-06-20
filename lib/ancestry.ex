@@ -355,6 +355,7 @@ defmodule Ancestry do
           )
       end
 
+      defp parse_ancestry_column(""), do: nil
       defp parse_ancestry_column(nil), do: nil
 
       defp parse_ancestry_column(field) do
