@@ -1,6 +1,52 @@
 defmodule Ancestry.Repo do
   @moduledoc false
 
+  alias Ecto.Changeset
+
+  @doc """
+  Arrange an entire subtree into nested hashes for
+  easy navigation after retrieval from the database.
+  """
+  @spec arrange(Ecto.Schema.t(), any, any) :: Map.t()
+  def arrange(record, _opts, module) do
+    case module.has_children?(record) do
+      true ->
+        Map.merge(record, %{children: do_build_children(record, module)})
+
+      false ->
+        record
+    end
+  end
+
+  defp do_build_children(record, module) do
+    record
+    |> module.children()
+    |> Enum.map(fn x ->
+      case module.has_children?(x) do
+        true ->
+          Map.merge(x, %{children: do_build_children(x, module)})
+
+        false ->
+          x
+      end
+    end)
+  end
+
+  @doc """
+  Get ancestry value
+  """
+  @spec get_ancestry_value(Ecto.Schema.t(), String.t(), any, any) :: String.t()
+  def get_ancestry_value(record, "children", opts, module) do
+    case module.is_root?(record) do
+      true -> "#{record.id}"
+      false -> "#{record |> Map.get(opts[:ancestry_column])}/#{record.id}"
+    end
+  end
+
+  @spec get_ancestry_value(Ecto.Schema.t(), String.t(), any, any) :: String.t()
+  def get_ancestry_value(record, "siblings", opts, _),
+    do: record |> Map.get(opts[:ancestry_column])
+
   @doc """
   Delete ancestry
 
@@ -12,19 +58,6 @@ defmodule Ancestry.Repo do
     * :adopt     The orphan subtree is added to the parent of the deleted node.
 
   """
-
-  alias Ecto.Changeset
-
-  def get_ancestry_value(record, "children", opts, module) do
-    case module.is_root?(record) do
-      true -> "#{record.id}"
-      false -> "#{record |> Map.get(opts[:ancestry_column])}/#{record.id}"
-    end
-  end
-
-  def get_ancestry_value(record, "siblings", opts, _),
-    do: record |> Map.get(opts[:ancestry_column])
-
   def delete(record, opts, module) do
     repo = opts[:repo]
 
