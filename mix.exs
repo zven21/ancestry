@@ -9,12 +9,19 @@ defmodule Ancestry.MixProject do
       app: :ancestry,
       version: @version,
       description: "The tree structure implementations for Ecto.",
-      elixir: "~> 1.8",
+      elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -31,6 +38,7 @@ defmodule Ancestry.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0", only: :test},
+      {:excoveralls, "~> 0.10.5", only: :test},
       {:ex_machina, "~> 2.2", only: :test}
     ]
   end

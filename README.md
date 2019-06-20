@@ -1,5 +1,8 @@
 # Ancestry
 
+[![Build Status](https://travis-ci.org/zven21/ancestry.svg?branch=master)](https://travis-ci.org/zven21/ancestry)
+[![Coverage Status](https://coveralls.io/repos/github/zven21/ancestry/badge.svg)](https://coveralls.io/github/zven21/ancestry)
+
 **The tree structure implementations for Ecto.**
 
 ## Table of contents
