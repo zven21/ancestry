@@ -9,7 +9,7 @@ defmodule Ancestry.MixProject do
       app: :ancestry,
       version: @version,
       description: "The tree structure implementations for Ecto.",
-      elixir: "~> 1.8",
+      elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       package: package(),
