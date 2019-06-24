@@ -153,7 +153,7 @@ iex> MyModel.delete(record)
 iex> MyModel.get_ancestry_value(record, "children")
 
 # use `MyModel.arrange`
-iex> MyModel.get_ancestry_value(record)
+iex> MyModel.arrange(record)
 ```
 
 ## Contributing
