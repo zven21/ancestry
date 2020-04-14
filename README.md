@@ -156,6 +156,12 @@ iex> MyModel.get_ancestry_value(record, "children")
 iex> MyModel.arrange(record)
 ```
 
+## TODO's
+
+* [ ] Establish data relationships
+* [ ] Parent create child
+* [ ] Create child with parent
+
 ## Contributing
 
 Bug report or pull request are welcome.
