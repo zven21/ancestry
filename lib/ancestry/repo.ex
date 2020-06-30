@@ -58,28 +58,28 @@ defmodule Ancestry.Repo do
     * :adopt     The orphan subtree is added to the parent of the deleted node.
 
   """
-  def delete(record, opts, module) do
+  def delete(record, opts, module, prefix) do
     repo = opts[:repo]
 
     repo.transaction(fn ->
-      model = repo.delete!(record)
-      handle_orphan_strategy(record, opts, module)
+      model = repo.delete!(record, prefix: prefix)
+      handle_orphan_strategy(record, opts, module, prefix)
       model
     end)
   end
 
-  defp handle_orphan_strategy(record, opts, module),
-    do: do_handle_orphan_strategy(record, module, opts, opts[:orphan_strategy])
+  defp handle_orphan_strategy(record, opts, module, prefix),
+    do: do_handle_orphan_strategy(record, module, opts, opts[:orphan_strategy], prefix)
 
   # destroy
-  defp do_handle_orphan_strategy(record, module, opts, :destroy) do
+  defp do_handle_orphan_strategy(record, module, opts, :destroy, prefix) do
     record
     |> module.descendants_query()
-    |> opts[:repo].delete_all()
+    |> opts[:repo].delete_all(prefix: prefix)
   end
 
   # rootify
-  defp do_handle_orphan_strategy(record, module, opts, :rootify) do
+  defp do_handle_orphan_strategy(record, module, opts, :rootify, prefix) do
     child_ancestry = module.child_ancestry(record)
 
     record
@@ -98,19 +98,19 @@ defmodule Ancestry.Repo do
 
       x
       |> Changeset.change(%{opts[:ancestry_column] => new_ancestry})
-      |> opts[:repo].update!()
+      |> opts[:repo].update!(prefix: prefix)
     end)
   end
 
   # restrict
-  defp do_handle_orphan_strategy(record, module, _, :restrict) do
+  defp do_handle_orphan_strategy(record, module, _, :restrict, _) do
     if module.has_children?(record), do: raise(Ancestry.RestrictError)
   end
 
   # adopt
-  defp do_handle_orphan_strategy(record, module, opts, :adopt) do
+  defp do_handle_orphan_strategy(record, module, opts, :adopt, prefix) do
     record
-    |> module.descendants()
+    |> module.descendants(prefix)
     |> Enum.each(fn descendant ->
       new_ancestry =
         module.ancestor_ids(descendant)
@@ -125,10 +125,10 @@ defmodule Ancestry.Repo do
 
       descendant
       |> Changeset.change(%{opts[:ancestry_column] => new_ancestry})
-      |> opts[:repo].update!()
+      |> opts[:repo].update!(prefix: prefix)
     end)
   end
 
-  defp do_handle_orphan_strategy(_, _, opts, _),
+  defp do_handle_orphan_strategy(_, _, opts, _, _),
     do: raise("orphan_strategy value #{opts[:orphan_strategy]} not exist.")
 end
