@@ -24,7 +24,7 @@ defmodule Ancestry do
     quote do
       import Ecto.Query
 
-      defdelegate delete(record, opts \\ unquote(opts), module \\ unquote(module), prefix \\ nil),
+      defdelegate delete(record, opts \\ unquote(opts), module \\ unquote(module)),
         to: Ancestry.Repo
 
       defdelegate arrange(record, opts \\ unquote(opts), module \\ unquote(module)),

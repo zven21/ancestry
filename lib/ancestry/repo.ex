@@ -58,7 +58,8 @@ defmodule Ancestry.Repo do
     * :adopt     The orphan subtree is added to the parent of the deleted node.
 
   """
-  def delete(record, opts, module, prefix) do
+  def delete(record, opts, module) do
+    prefix = opts[:prefix]
     repo = opts[:repo]
 
     repo.transaction(fn ->
