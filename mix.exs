@@ -38,7 +38,7 @@ defmodule Ancestry.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0", only: :test},
-      {:excoveralls, "~> 0.10.5", only: :test},
+      {:excoveralls, "~> 0.13.0", only: :test},
       {:ex_machina, "~> 2.2", only: :test}
     ]
   end
