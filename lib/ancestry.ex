@@ -285,10 +285,10 @@ defmodule Ancestry do
       Returns path of the record, starting with the root and ending with self
       """
       @spec path(Ecto.Schema.t()) :: Enum.t()
-      def path(record) do
+      def path(record, prefix \\ nil) do
         case is_root?(record) do
           true -> [record]
-          false -> ancestors(record) ++ [record]
+          false -> ancestors(record, prefix) ++ [record]
         end
       end
 
