@@ -265,10 +265,10 @@ defmodule Ancestry do
         query =
           from(
             u in unquote(module),
-            where:
+            where: fragment(unquote("#{opts[:ancestry_column]} = ?"), ^"#{query_string}") or
               fragment(
                 unquote("#{opts[:ancestry_column]} LIKE ?"),
-                ^"#{query_string}%"
+                ^"#{query_string}/%"
               )
           )
       end
