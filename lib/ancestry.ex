@@ -277,8 +277,8 @@ defmodule Ancestry do
       Gets the model on descendants and itself.
       """
       @spec subtree(Ecto.Schema.t()) :: Enum.t()
-      def subtree(record) do
-        [record | descendants(record)]
+      def subtree(record, prefix \\ nil) do
+        [record | descendants(record, prefix)]
       end
 
       @doc """
