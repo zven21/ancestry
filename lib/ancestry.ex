@@ -42,7 +42,7 @@ defmodule Ancestry do
       Gets Root nodes.
       """
       @spec roots() :: Enum.t()
-      def roots do
+      def roots(prefix \\ nil) do
         query =
           from(
             u in unquote(module),
@@ -52,7 +52,7 @@ defmodule Ancestry do
               )
           )
 
-        unquote(opts[:repo]).all(query)
+        unquote(opts[:repo]).all(query, prefix: prefix)
       end
 
       @doc """
@@ -68,7 +68,7 @@ defmodule Ancestry do
       Retutns ancestors of the record, starting with the root and ending with the parent
       """
       @spec ancestors(Ecto.Schema.t()) :: Enum.t()
-      def ancestors(record) do
+      def ancestors(record, prefix \\ nil) do
         case ancestor_ids(record) do
           nil ->
             nil
@@ -80,7 +80,7 @@ defmodule Ancestry do
                 where: u.id in ^ancestors
               )
 
-            unquote(opts[:repo]).all(query)
+            unquote(opts[:repo]).all(query, prefix: prefix)
         end
       end
 
@@ -100,8 +100,8 @@ defmodule Ancestry do
       Gets root of the record's tree, self for a root node
       """
       @spec root(Ecto.Schema.t()) :: Ecto.Schema.t()
-      def root(record) do
-        unquote(opts[:repo]).get!(unquote(module), root_id(record))
+      def root(record, prefix \\ nil) do
+        unquote(opts[:repo]).get!(unquote(module), root_id(record), prefix: prefix)
       end
 
       @doc """
@@ -124,10 +124,10 @@ defmodule Ancestry do
       Direct children of the record
       """
       @spec children(Ecto.Schema.t()) :: Enum.t()
-      def children(record) do
+      def children(record, prefix \\ nil) do
         record
         |> do_children_query()
-        |> unquote(opts[:repo]).all()
+        |> unquote(opts[:repo]).all(prefix: prefix)
       end
 
       @doc """
@@ -163,10 +163,10 @@ defmodule Ancestry do
       Gets parent of the record, nil for a root node
       """
       @spec parent(Ecto.Schema.t()) :: nil | Ecto.Schema.t()
-      def parent(record) do
+      def parent(record, prefix \\ nil) do
         case parent_id(record) do
           nil -> nil
-          id -> unquote(opts[:repo]).get!(unquote(module), id)
+          id -> unquote(opts[:repo]).get!(unquote(module), id, prefix: prefix)
         end
       end
 
@@ -199,10 +199,10 @@ defmodule Ancestry do
       Gets siblings of the record, the record itself is included
       """
       @spec siblings(Ecto.Schema.t()) :: Enum.t()
-      def siblings(record) do
+      def siblings(record, prefix \\ nil) do
         record
         |> do_siblings_query()
-        |> unquote(opts[:repo]).all()
+        |> unquote(opts[:repo]).all(prefix: prefix)
       end
 
       @doc """
@@ -238,24 +238,24 @@ defmodule Ancestry do
       Gets direct and indirect children of the record
       """
       @spec descendants(Ecto.Schema.t()) :: Enum.t()
-      def descendants(record) do
+      def descendants(record, prefix \\ nil) do
         record
         |> descendants_query()
-        |> unquote(opts[:repo]).all()
+        |> unquote(opts[:repo]).all(prefix: prefix)
       end
 
       @doc """
       Gets direct and indirect children's ids of the record
       """
       @spec descendant_ids(Ecto.Schema.t()) :: Enum.t()
-      def descendant_ids(record) do
+      def descendant_ids(record, prefix \\ nil) do
         record
-        |> descendants()
+        |> descendants(prefix)
         |> Enum.map(fn x -> Map.get(x, :id) end)
       end
 
       @doc false
-      def descendants_query(record) do
+      def descendants_query(record, prefix \\ nil) do
         query_string =
           case is_root?(record) do
             true -> "#{record.id}"
@@ -265,10 +265,10 @@ defmodule Ancestry do
         query =
           from(
             u in unquote(module),
-            where:
+            where: fragment(unquote("#{opts[:ancestry_column]} = ?"), ^"#{query_string}") or
               fragment(
                 unquote("#{opts[:ancestry_column]} LIKE ?"),
-                ^"#{query_string}%"
+                ^"#{query_string}/%"
               )
           )
       end
@@ -277,18 +277,18 @@ defmodule Ancestry do
       Gets the model on descendants and itself.
       """
       @spec subtree(Ecto.Schema.t()) :: Enum.t()
-      def subtree(record) do
-        [record | descendants(record)]
+      def subtree(record, prefix \\ nil) do
+        [record | descendants(record, prefix)]
       end
 
       @doc """
       Returns path of the record, starting with the root and ending with self
       """
       @spec path(Ecto.Schema.t()) :: Enum.t()
-      def path(record) do
+      def path(record, prefix \\ nil) do
         case is_root?(record) do
           true -> [record]
-          false -> ancestors(record) ++ [record]
+          false -> ancestors(record, prefix) ++ [record]
         end
       end
 
